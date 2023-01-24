@@ -1,15 +1,14 @@
-#include <iostream>
+Ôªø#include <iostream>
 #include<fstream>
-#include<filesystem>
 #include <string>
 #include <chrono>
 #include <random>
 #include <vector>
-
+#include<filesystem>
 
 #define ErrorProb 0  //about 0.8, almost equal strong
-#define GAINMYCOE 1.0//1.0:2.0 or 2.0:1.0Å@is good(?)
-#define GAINOPCOE 1.0//1.0:2.0 or 2.0:1.0Å@is good(?)
+#define GAINMYCOE 1.0//1.0:2.0 or 2.0:1.0¬Å@is good(?)
+#define GAINOPCOE 1.0//1.0:2.0 or 2.0:1.0¬Å@is good(?)
 /*
 {turnBoxes:240,971,868 byte
 ,treeLight:133,873,260 byte
@@ -20,16 +19,16 @@
 //#define STRONG
 
 #ifdef STUDY
-void study1();
+	void study1();
 
-#ifdef STRONG
-void creTreeSt();
-#define study2() creTreeSt();
+	#ifdef STRONG
+	void creTreeSt();
+	#define study2() creTreeSt();
 
 #else
 
-void creTree();
-#define study2() creTree();
+	void creTree();
+	#define study2() creTree();
 #endif
 
 #define act() study1();study2();
@@ -64,7 +63,7 @@ struct DatumExpansion {
 	unsigned int WinNum[6];
 };
 // show board
-void show(unsigned char box[8],char turn) {
+void show(unsigned char box[8], char turn) {
 
 	std::cout << "==============================" << std::endl;
 	std::cout << "         turn" << +turn << std::endl;
@@ -80,7 +79,7 @@ void show(unsigned char box[8],char turn) {
 
 }
 std::mt19937 rnd{ std::random_device{}() };
-std::uniform_real_distribution<float> uni(0,1);
+std::uniform_real_distribution<float> uni(0, 1);
 
 
 class Com1 {
@@ -90,7 +89,7 @@ class Com1 {
 	std::vector<char> moves;
 public:
 	Com1();
-	void renew(char x, char existBox,int turnCnt);
+	void renew(char x, char existBox, int turnCnt);
 	char choice(char turn, char existBox);
 };
 class Com2 {
@@ -99,7 +98,7 @@ class Com2 {
 	std::vector<char> moves;
 public:
 	Com2();
-	void renew(char x, char existBox,int turnCnt);
+	void renew(char x, char existBox, int turnCnt);
 	char choice(char turn, char existBox);
 };
 
@@ -114,7 +113,7 @@ void play() {
 	char x;
 	char existBox;
 	std::vector<char> moves;
-	int cntWin=0;
+	int cntWin = 0;
 	int cntTurnAve = 0;
 	std::ifstream::pos_type pos_end;
 	bool contin = true;
@@ -141,13 +140,18 @@ void play() {
 		std::cout << "second is com?(true=1,false=0):";
 		std::cin >> isCom[1];
 
-		Com1 com1;//or Com2
+		#ifdef STRONG
+			Com2 com1;
+		#else
+			Com1 com1;
+		#endif
+		//Com2 com1;//or Com2
 
 		//main game
 		std::cout << "===============================" << std::endl;
 		while (1) {
 
-			show(nowState.box,turnCnt);
+			show(nowState.box, turnCnt);
 
 			//process changing by turn
 			turn = nowState.next_turn << 2;
@@ -216,7 +220,7 @@ void play() {
 		std::cout << std::endl;
 		std::cout << "==============================" << std::endl;
 
-		
+
 		std::cout << "Continue?(true=1,false=0):";
 		std::cin >> contin;
 	}
@@ -225,6 +229,7 @@ void play() {
 
 }
 
+//constructor
 Com1::Com1() {
 	sprintf_s(inFileName, "treeLight/tree0");
 	std::ifstream tree1(inFileName, std::ios::binary);
@@ -237,7 +242,10 @@ Com2::Com2() {
 	tree1.read((char*)&datum, sizeof(char[29]));
 	tree1.close();
 }
-void Com1::renew(char x,  char existBox,int turnCnt){
+
+
+//next turn's file load
+void Com1::renew(char x, char existBox, int turnCnt) {
 	int loc = datum.loc;
 	for (int i = 0; i < x; ++i) {
 		if (((existBox >> (2 - i)) & 1) == 1)  ++loc;
@@ -259,7 +267,8 @@ void Com2::renew(char x, char existBox, int turnCnt) {
 	inData1.read((char*)&datum, sizeof(char[29]));
 	inData1.close();
 }
-char Com1::choice(char turn,char existBox) {
+
+char Com1::choice(char turn, char existBox) {
 	char tmpDec;
 	char x;
 	if (turn) {//non exist flag=1  turn1 1   turn0 0 however goto 1
@@ -274,7 +283,7 @@ char Com1::choice(char turn,char existBox) {
 	case 0x00: case 0x08:
 		switch (existBox) {//box_num 0,1,2
 		case 0b0001:x = 2; break; case 0b0010:x = 1; break; case 0b0100:x = 0; break;
-		case 0b0011:x = rnd()%2 + 1; break;
+		case 0b0011:x = rnd() % 2 + 1; break;
 		case 0b0101:x = rnd() % 2 << 1; break;
 		case 0b0110:x = rnd() % 2; break;
 		case 0b0111:
@@ -305,7 +314,7 @@ char Com2::choice(char turn, char existBox) {
 	tmpDec &= 0x07;
 	if (uni(rnd) < ErrorProb) tmpDec = 0x08;
 	char tnmy, tnop;
-	tnmy = turn>>2;
+	tnmy = turn >> 2;
 	tnop = (~tnmy) & 1;
 	double gain[3];
 	gain[0] = GAINMYCOE * datum.WinNum[tnmy] - GAINOPCOE * datum.WinNum[tnop];
@@ -350,13 +359,13 @@ char Com2::choice(char turn, char existBox) {
 			if (gain[0] < gain[2])x = 2;
 			else x = 0;
 		}
-	break;
+		break;
 	}
 	return x;
 }
 
 /*****************************************************************/
-void study1() {
+void study1() {//create all game state
 
 	std::chrono::system_clock::time_point start, end;
 	double elapsed = 0;
@@ -427,7 +436,12 @@ void study1() {
 	}
 }
 
-void creTree() {
+/*
+light tree vs heavy tree
+heavy tree have number of winnable states
+*/
+
+void creTree() {//create state tree 
 	std::chrono::system_clock::time_point start, end;
 	double elapsed = 0;
 	double alltime = 0;
@@ -465,7 +479,7 @@ void creTree() {
 				nDatum.nextWin = 0;
 				for (int i = 0; i < 3; ++i) {
 					if (before.box[turn + i]) {
-						aData.read((char *)&aDatum, sizeof(char[5]));
+						aData.read((char*)&aDatum, sizeof(char[5]));
 						++cnt;
 						switch (aDatum.nextWin & 0x0f) {
 						case 0b1110: case 0b1111:
@@ -487,7 +501,7 @@ void creTree() {
 			}
 			nDatum.nextWin += (before.next_turn & 0b0001);
 			nDatum.loc = cnt_tmp;
-			bData.write((char *)&nDatum, sizeof(char[5]));
+			bData.write((char*)&nDatum, sizeof(char[5]));
 			cnt_tmp = cnt;
 		}
 		end = std::chrono::system_clock::now();
@@ -500,7 +514,7 @@ void creTree() {
 
 	}
 }
-void creTreeSt() {
+void creTreeSt() {//create state tree 
 	std::chrono::system_clock::time_point start, end;
 	double elapsed = 0;
 	double alltime = 0;
@@ -545,7 +559,7 @@ void creTreeSt() {
 				nDatum.nextWin = 0;
 				for (int i = 0; i < 3; ++i) {
 					if (before.box[turn + i]) {
-						aData.read((char *)&aDatum, sizeof(char[29]));
+						aData.read((char*)&aDatum, sizeof(char[29]));
 						++cnt;
 						switch (aDatum.nextWin & 0x0f) {
 						case 0b1110: case 0b1111:
@@ -569,7 +583,7 @@ void creTreeSt() {
 			}
 			nDatum.nextWin += (before.next_turn & 0b0001);
 			nDatum.loc = cnt_tmp;
-			bData.write((char *)&nDatum, sizeof(char[29]));
+			bData.write((char*)&nDatum, sizeof(char[29]));
 			cnt_tmp = cnt;
 		}
 		end = std::chrono::system_clock::now();
