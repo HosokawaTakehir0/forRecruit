@@ -8,3 +8,4 @@ STUDYを指定することでゲームにおける全状態を生成し、選択
 STRONGを指定することで、より強い手の選択木の生成およびCOMの強さが変わります。
 
 
+![image](https://user-images.githubusercontent.com/83108184/214630328-535debdb-cf5a-4d6f-b1dd-10d946d7cb1c.png)
